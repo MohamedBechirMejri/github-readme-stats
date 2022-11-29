@@ -1,25 +1,26 @@
-require("@testing-library/jest-dom");
-const cssToObject = require("@uppercod/css-to-object").cssToObject;
-const renderStatsCard = require("../src/cards/stats-card");
-
-const {
+import {
   getByTestId,
-  queryByTestId,
   queryAllByTestId,
-} = require("@testing-library/dom");
-const themes = require("../themes");
+  queryByTestId,
+} from "@testing-library/dom";
+import { cssToObject } from "@uppercod/css-to-object";
+import { renderStatsCard } from "../src/cards/stats-card.js";
+// adds special assertions like toHaveTextContent
+import "@testing-library/jest-dom";
+
+import { themes } from "../themes/index.js";
+
+const stats = {
+  name: "Anurag Hazra",
+  totalStars: 100,
+  totalCommits: 200,
+  totalIssues: 300,
+  totalPRs: 400,
+  contributedTo: 500,
+  rank: { level: "A+", score: 40 },
+};
 
 describe("Test renderStatsCard", () => {
-  const stats = {
-    name: "Anurag Hazra",
-    totalStars: 100,
-    totalCommits: 200,
-    totalIssues: 300,
-    totalPRs: 400,
-    contributedTo: 500,
-    rank: { level: "A+", score: 40 },
-  };
-
   it("should render correctly", () => {
     document.body.innerHTML = renderStatsCard(stats);
 
@@ -238,6 +239,39 @@ describe("Test renderStatsCard", () => {
     );
   });
 
+  it("should render custom ring_color properly", () => {
+    const customColors = {
+      title_color: "5a0",
+      ring_color: "0000ff",
+      icon_color: "1b998b",
+      text_color: "9991",
+      bg_color: "252525",
+    };
+
+    document.body.innerHTML = renderStatsCard(stats, { ...customColors });
+
+    const styleTag = document.querySelector("style");
+    const stylesObject = cssToObject(styleTag.innerHTML);
+
+    const headerClassStyles = stylesObject[":host"][".header "];
+    const statClassStyles = stylesObject[":host"][".stat "];
+    const iconClassStyles = stylesObject[":host"][".icon "];
+    const rankCircleStyles = stylesObject[":host"][".rank-circle "];
+    const rankCircleRimStyles = stylesObject[":host"][".rank-circle-rim "];
+
+    expect(headerClassStyles.fill.trim()).toBe(`#${customColors.title_color}`);
+    expect(statClassStyles.fill.trim()).toBe(`#${customColors.text_color}`);
+    expect(iconClassStyles.fill.trim()).toBe(`#${customColors.icon_color}`);
+    expect(rankCircleStyles.stroke.trim()).toBe(`#${customColors.ring_color}`);
+    expect(rankCircleRimStyles.stroke.trim()).toBe(
+      `#${customColors.ring_color}`,
+    );
+    expect(queryByTestId(document.body, "card-bg")).toHaveAttribute(
+      "fill",
+      "#252525",
+    );
+  });
+
   it("should render icons correctly", () => {
     document.body.innerHTML = renderStatsCard(stats, {
       show_icons: true,
@@ -310,7 +344,7 @@ describe("Test renderStatsCard", () => {
       document.querySelector(
         'g[transform="translate(0, 100)"]>.stagger>.stat.bold',
       ).textContent,
-    ).toMatchInlineSnapshot(`"参与项目数:"`);
+    ).toMatchInlineSnapshot(`"参与项目数 (last year):"`);
   });
 
   it("should render without rounding", () => {
