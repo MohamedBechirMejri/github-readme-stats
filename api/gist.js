@@ -8,6 +8,8 @@ import { isLocaleAvailable } from "../src/translations.js";
 import { renderGistCard } from "../src/cards/gist-card.js";
 import { fetchGist } from "../src/fetchers/gist-fetcher.js";
 
+export const runtime = 'edge'
+
 export default async (req, res) => {
   const {
     id,
