@@ -10,7 +10,7 @@ import {
 import { fetchTopLanguages } from "../src/fetchers/top-languages-fetcher.js";
 import { isLocaleAvailable } from "../src/translations.js";
 
-export const runtime = 'edge'
+export const runtime = "edge";
 
 export default async (req, res) => {
   const {
